@@ -7,6 +7,15 @@ pub struct Language {
     pub name: String,
 }
 
+impl Language {
+    pub fn new(code: String, name: String) -> Self {
+        Self {
+            code,
+            name,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LanguageEmbed {
     pub code: String,

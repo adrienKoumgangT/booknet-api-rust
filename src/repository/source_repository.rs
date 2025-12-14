@@ -153,17 +153,17 @@ impl SourceRepositoryInterface for SourceRepository {
     }
 
     async fn list_sources(&self) -> Result<Vec<Source>, Error> {
-        let timer = TimePrinter::with_message("[REPOSITORY] [SOURCE] [GET ALL]");
+        let timer = TimePrinter::with_message("[REPOSITORY] [SOURCE] [LIST]");
 
         let result = self.source_collection.find(doc! {}).await;
 
         match result {
             Ok(mut cursor) => {
-                timer.log();
                 let mut out = Vec::new();
                 while let Some(item) = cursor.next().await {
                     out.push(item?);
                 }
+                timer.log();
                 Ok(out)
             },
             Err(e) => {

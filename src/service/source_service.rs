@@ -87,6 +87,16 @@ impl SourceService {
     pub fn form_redis_key_list(&self) -> String {
         format!("{}source:list", self.redis_prefix_colon())
     }
+
+    pub async fn delete_list_cache(&self) -> Result<(), Error> {
+        if let Some(redis_pool) = &self.redis_pool {
+            let _ = delete_key(
+                &redis_pool,
+                self.form_redis_key_list().as_str()
+            ).await?;
+        }
+        Ok(())
+    }
 }
 
 
@@ -136,6 +146,7 @@ impl SourceServiceInterface for SourceService {
                         &source_response,
                         self.redis_key_single_ttl()
                     ).await?;
+                    self.delete_list_cache().await?;
                 }
                 Ok(source_response)
             },
@@ -158,6 +169,7 @@ impl SourceServiceInterface for SourceService {
                                 &source_response,
                                 self.redis_key_single_ttl()
                             ).await?;
+                            self.delete_list_cache().await?;
                         }
                         Ok(Some(source_response))
                     },
@@ -175,6 +187,7 @@ impl SourceServiceInterface for SourceService {
                 &redis_pool, 
                 self.form_redis_key_single(&source_delete_command.id).as_str()
             ).await?;
+            self.delete_list_cache().await?;
         }
         match result {
             Ok(_) => Ok(()),
