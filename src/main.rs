@@ -4,9 +4,15 @@ use crate::shared::configuration::AppConfig;
 use crate::shared::logging::log;
 
 mod shared;
-mod services;
+mod service;
 mod main_app;
 mod metrics_app;
+mod controller;
+mod model;
+mod command;
+mod dto;
+mod repository;
+mod route;
 
 async fn start_main_server(config: AppConfig) {
     let app = build_app(config).await.unwrap();

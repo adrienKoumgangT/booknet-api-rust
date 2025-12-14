@@ -7,7 +7,7 @@ pub struct AppConfigJWT {
     pub private_secret_pem_path: Option<String>,
     pub public_secret_pem_path: String, // HS256 secret
     pub issuer: String, // "booknet"
-    pub audience: String, // "all-services" or service name
+    pub audience: String, // "all-service" or service name
     pub expires_in_minutes: i64,
     pub kid: Option<String>, // key id shown in the JWT header
 }
