@@ -1,9 +1,15 @@
 use axum::{Router, routing::{get}, extract::{Path, State}, Json, http::StatusCode};
-use crate::shared::state::AppState;
 
-use crate::command::language_command::{LanguageCreateCommand, LanguageDeleteCommand, LanguageGetCommand, LanguageListCommand, LanguageUpdateCommand};
-use crate::dto::language_dto::{LanguageCreateRequest, LanguageResponse, LanguageUpdateRequest};
-use crate::service::language_service::{LanguageService, LanguageServiceInterface};
+use crate::command::metadata_command::{
+    LanguageCreateCommand,
+    LanguageDeleteCommand,
+    LanguageGetCommand,
+    LanguageListCommand,
+    LanguageUpdateCommand
+};
+use crate::dto::metadata_dto::{LanguageCreateRequest, LanguageResponse, LanguageUpdateRequest};
+use crate::service::metadata_service::{MetadataService, MetadataServiceInterface};
+use crate::shared::state::AppState;
 
 
 pub fn routes() -> Router<AppState> {
@@ -15,7 +21,7 @@ pub fn routes() -> Router<AppState> {
 
 #[utoipa::path(
     get,
-    path = "/api/language",
+    path = "/api/metadata/language",
     responses(
         (status = StatusCode::OK, description = "List of languages", body = Vec<LanguageResponse>),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -24,9 +30,9 @@ pub fn routes() -> Router<AppState> {
     tag = "Language"
 )]
 pub async fn get_languages(State(state): State<AppState>) -> Result<Json<Vec<LanguageResponse>>, StatusCode> {
-    let service_list_command = LanguageListCommand { pagination: None };
-    let language_service = LanguageService::from(&state);
-    let languages = language_service.list(service_list_command).await;
+    let cmd = LanguageListCommand { pagination: None };
+    let service = MetadataService::from(&state);
+    let languages = service.list_languages(cmd).await;
     match languages {
         Ok(languages) => Ok(Json(languages)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -36,7 +42,7 @@ pub async fn get_languages(State(state): State<AppState>) -> Result<Json<Vec<Lan
 
 #[utoipa::path(
     post,
-    path = "/api/language",
+    path = "/api/metadata/language",
     responses(
         (status = StatusCode::CREATED, description = "Language created", body = LanguageResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -45,9 +51,9 @@ pub async fn get_languages(State(state): State<AppState>) -> Result<Json<Vec<Lan
     tag = "Language"
 )]
 pub async fn post_language(State(state): State<AppState>, Json(language_create_request): Json<LanguageCreateRequest>) -> Result<Json<LanguageResponse>, StatusCode> {
-    let language_create_command = LanguageCreateCommand { code: language_create_request.code, name: language_create_request.name };
-    let language_service = LanguageService::from(&state);
-    let language = language_service.create(language_create_command).await;
+    let cmd = LanguageCreateCommand { code: language_create_request.code, name: language_create_request.name };
+    let service = MetadataService::from(&state);
+    let language = service.create_language(cmd).await;
     match language {
         Ok(language) => Ok(Json(language)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -57,7 +63,7 @@ pub async fn post_language(State(state): State<AppState>, Json(language_create_r
 
 #[utoipa::path(
     get,
-    path = "/api/language/{language_id}",
+    path = "/api/metadata/language/{language_id}",
     responses(
         (status = StatusCode::OK, description = "Language retrieved", body = LanguageResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -70,9 +76,9 @@ pub async fn get_language(
     Path(language_id): Path<String>,
     State(state): State<AppState>
 ) -> Result<Json<LanguageResponse>, StatusCode> {
-    let language_get_command = LanguageGetCommand { id: language_id };
-    let language_service = LanguageService::from(&state);
-    let language = language_service.get(language_get_command).await;
+    let cmd = LanguageGetCommand { id: language_id };
+    let service = MetadataService::from(&state);
+    let language = service.get_language(cmd).await;
     match language {
         Ok(language) => {
             match language {
@@ -87,7 +93,7 @@ pub async fn get_language(
 
 #[utoipa::path(
     put,
-    path = "/api/language/{language_id}",
+    path = "/api/metadata/language/{language_id}",
     responses(
         (status = StatusCode::OK, description = "Language updated", body = LanguageResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -101,9 +107,9 @@ pub async fn put_language(
     State(state): State<AppState>,
     Json(language_update_request): Json<LanguageUpdateRequest>
 ) -> Result<Json<LanguageResponse>, StatusCode> {
-    let language_update_command = LanguageUpdateCommand { code: language_id, name: language_update_request.name };
-    let language_service = LanguageService::from(&state);
-    let language = language_service.update(language_update_command).await;
+    let cmd = LanguageUpdateCommand { code: language_id, name: language_update_request.name };
+    let service = MetadataService::from(&state);
+    let language = service.update_language(cmd).await;
     match language {
         Ok(language) => {
             match language {
@@ -118,7 +124,7 @@ pub async fn put_language(
 
 #[utoipa::path(
     delete,
-    path = "/api/language/{language_id}",
+    path = "/api/metadata/language/{language_id}",
     responses(
         (status = StatusCode::NO_CONTENT, description = "Language deleted"),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -131,9 +137,9 @@ pub async fn delete_language(
     Path(language_id): Path<String>,
     State(state): State<AppState>
 ) -> Result<(), StatusCode> {
-    let language_delete_command = LanguageDeleteCommand { id: language_id };
-    let language_service = LanguageService::from(&state);
-    let result = language_service.delete(language_delete_command).await;
+    let cmd = LanguageDeleteCommand { id: language_id };
+    let service = MetadataService::from(&state);
+    let result = service.delete_language(cmd).await;
     match result {
         Ok(_) => Ok(()),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)

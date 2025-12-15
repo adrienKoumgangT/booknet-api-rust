@@ -1,2 +1,1 @@
-pub mod source_service;
-pub mod language_service;
+pub mod metadata_service;

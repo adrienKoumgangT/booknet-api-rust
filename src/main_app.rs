@@ -9,14 +9,13 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use crate::shared::configuration::AppConfig;
 use crate::shared::openapi::spec::ApiDoc;
-use crate::route::{language_route, source_route};
+use crate::route::{metadata_route};
 use crate::shared::state::AppState;
 use crate::shared::metrics::metrics_logger::metrics_and_logging_middleware;
 
 pub fn create_api_router() -> Router<AppState> {
     Router::new()
-        .nest("/language", language_route::routes())
-        .nest("/source", source_route::routes())
+        .nest("/metadata", metadata_route::routes())
 }
 
 pub struct App { pub addr: SocketAddr, pub router: Router }

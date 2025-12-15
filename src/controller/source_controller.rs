@@ -1,15 +1,15 @@
 use axum::{Router, routing::{get}, extract::{Path, State}, Json, http::StatusCode};
-use crate::shared::state::AppState;
 
-use crate::command::source_command::{
+use crate::command::metadata_command::{
     SourceCreateCommand,
     SourceDeleteCommand,
     SourceGetCommand,
     SourceListCommand,
     SourceUpdateCommand
 };
-use crate::dto::source_dto::{SourceCreateRequest, SourceResponse, SourceUpdateRequest};
-use crate::service::source_service::{SourceService, SourceServiceInterface};
+use crate::dto::metadata_dto::{SourceCreateRequest, SourceResponse, SourceUpdateRequest};
+use crate::service::metadata_service::{MetadataService, MetadataServiceInterface};
+use crate::shared::state::AppState;
 
 
 pub fn routes() -> Router<AppState> {
@@ -21,7 +21,7 @@ pub fn routes() -> Router<AppState> {
 
 #[utoipa::path(
     get,
-    path = "/api/source",
+    path = "/api/metadata/source",
     responses(
         (status = StatusCode::OK, description = "List of sources", body = Vec<SourceResponse>),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -30,9 +30,9 @@ pub fn routes() -> Router<AppState> {
     tag = "Source"
 )]
 pub async fn get_sources(State(state): State<AppState>) -> Result<Json<Vec<SourceResponse>>, StatusCode> {
-    let service_list_command = SourceListCommand { pagination: None };
-    let source_service = SourceService::from(&state);
-    let sources = source_service.list(service_list_command).await;
+    let cmd = SourceListCommand { pagination: None };
+    let service = MetadataService::from(&state);
+    let sources = service.list_sources(cmd).await;
     match sources {
         Ok(sources) => Ok(Json(sources)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -42,7 +42,7 @@ pub async fn get_sources(State(state): State<AppState>) -> Result<Json<Vec<Sourc
 
 #[utoipa::path(
     post,
-    path = "/api/source",
+    path = "/api/metadata/source",
     responses(
         (status = StatusCode::CREATED, description = "Source created", body = SourceResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -51,9 +51,9 @@ pub async fn get_sources(State(state): State<AppState>) -> Result<Json<Vec<Sourc
     tag = "Source"
 )]
 pub async fn post_source(State(state): State<AppState>, Json(source_create_request): Json<SourceCreateRequest>) -> Result<Json<SourceResponse>, StatusCode> {
-    let source_create_command = SourceCreateCommand { name: source_create_request.name, website: source_create_request.website };
-    let source_service = SourceService::from(&state);
-    let source = source_service.create(source_create_command).await;
+    let cmd = SourceCreateCommand { name: source_create_request.name, website: source_create_request.website };
+    let service = MetadataService::from(&state);
+    let source = service.create_source(cmd).await;
     match source {
         Ok(source) => Ok(Json(source)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -63,7 +63,7 @@ pub async fn post_source(State(state): State<AppState>, Json(source_create_reque
 
 #[utoipa::path(
     get,
-    path = "/api/source/{source_id}",
+    path = "/api/metadata/source/{source_id}",
     responses(
         (status = StatusCode::OK, description = "Source retrieved", body = SourceResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -76,9 +76,9 @@ pub async fn get_source(
     Path(source_id): Path<String>,
     State(state): State<AppState>
 ) -> Result<Json<SourceResponse>, StatusCode> {
-    let source_get_command = SourceGetCommand { id: source_id };
-    let source_service = SourceService::from(&state);
-    let source = source_service.get(source_get_command).await;
+    let cmd = SourceGetCommand { id: source_id };
+    let service = MetadataService::from(&state);
+    let source = service.get_source(cmd).await;
     match source {
         Ok(source) => {
             match source {
@@ -93,7 +93,7 @@ pub async fn get_source(
 
 #[utoipa::path(
     put,
-    path = "/api/source/{source_id}",
+    path = "/api/metadata/source/{source_id}",
     responses(
         (status = StatusCode::OK, description = "Source updated", body = SourceResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -107,9 +107,9 @@ pub async fn put_source(
     State(state): State<AppState>,
     Json(source_update_request): Json<SourceUpdateRequest>
 ) -> Result<Json<SourceResponse>, StatusCode> {
-    let source_update_command = SourceUpdateCommand { name: source_id, website: source_update_request.website };
-    let source_service = SourceService::from(&state);
-    let source = source_service.update(source_update_command).await;
+    let cmd = SourceUpdateCommand { name: source_id, website: source_update_request.website };
+    let service = MetadataService::from(&state);
+    let source = service.update_source(cmd).await;
     match source {
         Ok(source) => {
             match source {
@@ -124,7 +124,7 @@ pub async fn put_source(
 
 #[utoipa::path(
     delete,
-    path = "/api/source/{source_id}",
+    path = "/api/metadata/source/{source_id}",
     responses(
         (status = StatusCode::NO_CONTENT, description = "Source deleted"),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -137,9 +137,9 @@ pub async fn delete_source(
     Path(source_id): Path<String>,
     State(state): State<AppState>
 ) -> Result<(), StatusCode> {
-    let source_delete_command = SourceDeleteCommand { id: source_id };
-    let source_service = SourceService::from(&state);
-    let result = source_service.delete(source_delete_command).await;
+    let cmd = SourceDeleteCommand { id: source_id };
+    let service = MetadataService::from(&state);
+    let result = service.delete_source(cmd).await;
     match result {
         Ok(_) => Ok(()),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
