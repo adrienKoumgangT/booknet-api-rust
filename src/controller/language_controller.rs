@@ -1,13 +1,13 @@
 use axum::{Router, routing::{get}, extract::{Path, State}, Json, http::StatusCode};
 
-use crate::command::metadata_command::{
+use crate::command::language_command::{
     LanguageCreateCommand,
     LanguageDeleteCommand,
     LanguageGetCommand,
     LanguageListCommand,
     LanguageUpdateCommand
 };
-use crate::dto::metadata_dto::{LanguageCreateRequest, LanguageResponse, LanguageUpdateRequest};
+use crate::dto::language_dto::{LanguageCreateRequest, LanguageResponse, LanguageUpdateRequest};
 use crate::service::metadata_service::{MetadataService, MetadataServiceInterface};
 use crate::shared::state::AppState;
 

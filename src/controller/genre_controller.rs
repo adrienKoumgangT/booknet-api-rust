@@ -1,7 +1,7 @@
 use axum::{Router, routing::{get}, extract::{Path, State}, Json, http::StatusCode};
 
-use crate::command::metadata_command::{GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand};
-use crate::dto::metadata_dto::{GenreCreateRequest, GenreResponse, GenreUpdateRequest};
+use crate::command::genre_command::{GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand};
+use crate::dto::genre_dto::{GenreCreateRequest, GenreResponse, GenreUpdateRequest};
 use crate::service::metadata_service::{MetadataService, MetadataServiceInterface};
 use crate::shared::state::AppState;
 

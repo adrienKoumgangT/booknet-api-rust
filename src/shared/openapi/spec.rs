@@ -1,7 +1,7 @@
 use utoipa::{OpenApi};
 
 use crate::controller::{genre_controller, language_controller, source_controller};
-use crate::dto::{metadata_dto};
+use crate::dto::{genre_dto, language_dto, source_dto};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -25,9 +25,9 @@ use crate::dto::{metadata_dto};
     ),
     components(
         schemas(
-            metadata_dto::GenreResponse, metadata_dto::GenreCreateRequest, metadata_dto::GenreUpdateRequest,
-            metadata_dto::LanguageResponse, metadata_dto::LanguageCreateRequest, metadata_dto::LanguageUpdateRequest,
-            metadata_dto::SourceResponse, metadata_dto::SourceCreateRequest, metadata_dto::SourceUpdateRequest,
+            genre_dto::GenreResponse, genre_dto::GenreCreateRequest, genre_dto::GenreUpdateRequest,
+            language_dto::LanguageResponse, language_dto::LanguageCreateRequest, language_dto::LanguageUpdateRequest,
+            source_dto::SourceResponse, source_dto::SourceCreateRequest, source_dto::SourceUpdateRequest,
         )
     )
 )]

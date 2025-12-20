@@ -2,11 +2,31 @@ use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use crate::model::book_model::BookEmbed;
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
     Reader,
+}
+
+impl UserRole {
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Self::Admin => "admin",
+            Self::Reader => "reader",
+        }
+    }
+
+    pub fn is_admin(&self) -> bool {
+        matches!(self, Self::Admin)
+    }
+}
+
+impl Default for UserRole {
+    fn default() -> Self { Self::Reader }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,7 +53,10 @@ pub struct User {
     pub preference: Option<UserPreference>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reviews: Option<Vec<String>>,
+    pub shelf: Option<Vec<BookEmbed>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_reviews: Option<Vec<String>>,
 
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

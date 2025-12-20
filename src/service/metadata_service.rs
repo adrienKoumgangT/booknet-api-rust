@@ -3,12 +3,18 @@ use async_trait::async_trait;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 
-use crate::command::metadata_command::{
-    GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand,
-    LanguageCreateCommand, LanguageDeleteCommand, LanguageGetCommand, LanguageListCommand, LanguageUpdateCommand,
+use crate::command::genre_command::{
+    GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand
+};
+use crate::command::language_command::{
+    LanguageCreateCommand, LanguageDeleteCommand, LanguageGetCommand, LanguageListCommand, LanguageUpdateCommand
+};
+use crate::command::source_command::{
     SourceCreateCommand, SourceDeleteCommand, SourceGetCommand, SourceListCommand, SourceUpdateCommand
 };
-use crate::dto::metadata_dto::{GenreResponse, LanguageResponse, SourceResponse};
+use crate::dto::genre_dto::GenreResponse;
+use crate::dto::language_dto::LanguageResponse;
+use crate::dto::source_dto::SourceResponse;
 use crate::model::metadata_model::{Metadata, MetadataKey};
 use crate::repository::metadata_repository::{MetadataRepository, MetadataRepositoryInterface};
 use crate::shared::database::redis::{delete_key, get_key, set_key};

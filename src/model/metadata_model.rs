@@ -2,26 +2,6 @@ use serde::{Deserialize, Serialize};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Source {
-    pub name: String,
-    pub website: String,
-}
-
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Language {
-    pub code: String,
-    pub name: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Genre {
-    pub name: String,
-    pub description: String,
-}
-
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Metadata {
     Source {
@@ -62,14 +42,6 @@ impl Metadata {
 
     pub fn new_genre(name: String, description: String) -> Self {
         Self::Genre { name, description }
-    }
-
-    pub fn get_name(&self) -> Option<&str> {
-        match self {
-            Metadata::Source { name, .. } => Some(name),
-            Metadata::Language { name, .. } => Some(name),
-            Metadata::Genre { name, .. } => Some(name),
-        }
     }
 
     pub fn save_in_noe4j(&self) -> bool {

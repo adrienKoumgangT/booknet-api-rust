@@ -1,13 +1,13 @@
 use axum::{Router, routing::{get}, extract::{Path, State}, Json, http::StatusCode};
 
-use crate::command::metadata_command::{
+use crate::command::source_command::{
     SourceCreateCommand,
     SourceDeleteCommand,
     SourceGetCommand,
     SourceListCommand,
     SourceUpdateCommand
 };
-use crate::dto::metadata_dto::{SourceCreateRequest, SourceResponse, SourceUpdateRequest};
+use crate::dto::source_dto::{SourceCreateRequest, SourceResponse, SourceUpdateRequest};
 use crate::service::metadata_service::{MetadataService, MetadataServiceInterface};
 use crate::shared::state::AppState;
 
