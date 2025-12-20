@@ -1,7 +1,7 @@
 use utoipa::{OpenApi};
 
-use crate::controller::{genre_controller, language_controller, source_controller};
-use crate::dto::{genre_dto, language_dto, source_dto};
+use crate::controller::{genre_controller, language_controller, publisher_controller, source_controller};
+use crate::dto::{genre_dto, language_dto, publisher_dto, source_dto};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -9,6 +9,7 @@ use crate::dto::{genre_dto, language_dto, source_dto};
     tags(
         (name = "Genre", description = "Genre API endpoints"),
         (name = "Language", description = "Language API endpoints"),
+        (name = "Publisher", description = "Publisher API endpoints"),
         (name = "Source", description = "Source API endpoints"),
         (name = "User", description = "User API endpoints"),
     ),
@@ -20,6 +21,9 @@ use crate::dto::{genre_dto, language_dto, source_dto};
         language_controller::get_languages, language_controller::post_language,
         language_controller::get_language, language_controller::put_language, language_controller::delete_language,
     
+        publisher_controller::list_publishers, publisher_controller::post_publisher,
+        publisher_controller::get_publisher, publisher_controller::put_publisher, publisher_controller::delete_publisher,
+    
         source_controller::get_sources, source_controller::post_source,
         source_controller::get_source, source_controller::put_source, source_controller::delete_source,
     ),
@@ -27,6 +31,7 @@ use crate::dto::{genre_dto, language_dto, source_dto};
         schemas(
             genre_dto::GenreResponse, genre_dto::GenreCreateRequest, genre_dto::GenreUpdateRequest,
             language_dto::LanguageResponse, language_dto::LanguageCreateRequest, language_dto::LanguageUpdateRequest,
+            publisher_dto::PublisherResponse, publisher_dto::PublisherCreateRequest, publisher_dto::PublisherUpdateRequest,
             source_dto::SourceResponse, source_dto::SourceCreateRequest, source_dto::SourceUpdateRequest,
         )
     )

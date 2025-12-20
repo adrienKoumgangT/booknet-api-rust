@@ -2,7 +2,7 @@ use axum::{Router, routing::{get}, extract::{Path, State}, Json, http::StatusCod
 
 use crate::command::genre_command::{GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand};
 use crate::dto::genre_dto::{GenreCreateRequest, GenreResponse, GenreUpdateRequest};
-use crate::service::metadata_service::{MetadataService, MetadataServiceInterface};
+use crate::service::genre_service::{GenreService, GenreServiceInterface};
 use crate::shared::state::AppState;
 
 
@@ -16,7 +16,7 @@ pub fn routes() -> Router<AppState> {
 
 #[utoipa::path(
     get,
-    path = "/api/metadata/genre",
+    path = "/api/services/genre",
     responses(
         (status = StatusCode::OK, description = "List of genres", body = Vec<GenreResponse>),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -26,8 +26,8 @@ pub fn routes() -> Router<AppState> {
 )]
 pub async fn get_genres(State(state): State<AppState>) -> Result<Json<Vec<GenreResponse>>, StatusCode> {
     let cmd = GenreListCommand { pagination: None };
-    let service = MetadataService::from(&state);
-    let genres = service.list_genres(cmd).await;
+    let service = GenreService::from(&state);
+    let genres = service.list(cmd).await;
     match genres {
         Ok(genres) => Ok(Json(genres)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -37,7 +37,7 @@ pub async fn get_genres(State(state): State<AppState>) -> Result<Json<Vec<GenreR
 
 #[utoipa::path(
     post,
-    path = "/api/metadata/genre",
+    path = "/api/services/genre",
     responses(
         (status = StatusCode::CREATED, description = "Genre created", body = GenreResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -47,8 +47,8 @@ pub async fn get_genres(State(state): State<AppState>) -> Result<Json<Vec<GenreR
 )]
 pub async fn post_genre(State(state): State<AppState>, Json(request): Json<GenreCreateRequest>) -> Result<Json<GenreResponse>, StatusCode> {
     let cmd = GenreCreateCommand { name: request.name, description: request.description };
-    let service = MetadataService::from(&state);
-    let genre = service.create_genre(cmd).await;
+    let service = GenreService::from(&state);
+    let genre = service.create(cmd).await;
     match genre {
         Ok(genre) => Ok(Json(genre)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -58,7 +58,7 @@ pub async fn post_genre(State(state): State<AppState>, Json(request): Json<Genre
 
 #[utoipa::path(
 get,
-    path = "/api/metadata/genre/{genre_id}",
+    path = "/api/services/genre/{genre_id}",
     responses(
         (status = StatusCode::OK, description = "Genre retrieved", body = GenreResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -72,8 +72,8 @@ pub async fn get_genre(
     State(state): State<AppState>
 ) -> Result<Json<GenreResponse>, StatusCode> {
     let cmd = GenreGetCommand { id: genre_id };
-    let service = MetadataService::from(&state);
-    let genre = service.get_genre(cmd).await;
+    let service = GenreService::from(&state);
+    let genre = service.get(cmd).await;
     match genre {
         Ok(genre) => {
             match genre {
@@ -88,7 +88,7 @@ pub async fn get_genre(
 
 #[utoipa::path(
     put,
-    path = "/api/metadata/genre/{genre_id}",
+    path = "/api/services/genre/{genre_id}",
     responses(
         (status = StatusCode::OK, description = "Genre updated", body = GenreResponse),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -103,8 +103,8 @@ pub async fn put_genre(
     Json(request): Json<GenreUpdateRequest>
 ) -> Result<Json<GenreResponse>, StatusCode> {
     let cmd = GenreUpdateCommand { name: genre_id, description: request.description };
-    let service = MetadataService::from(&state);
-    let genre = service.update_genre(cmd).await;
+    let service = GenreService::from(&state);
+    let genre = service.update(cmd).await;
     match genre {
         Ok(genre) => {
             match genre {
@@ -119,7 +119,7 @@ pub async fn put_genre(
 
 #[utoipa::path(
     delete,
-    path = "/api/metadata/genre/{genre_id}",
+    path = "/api/services/genre/{genre_id}",
     responses(
         (status = StatusCode::NO_CONTENT, description = "Genre deleted"),
         (status = StatusCode::BAD_REQUEST, description = "Bad request"),
@@ -133,8 +133,8 @@ pub async fn delete_genre(
     State(state): State<AppState>
 ) -> Result<(), StatusCode> {
     let cmd = GenreDeleteCommand { id: genre_id };
-    let service = MetadataService::from(&state);
-    let result = service.delete_genre(cmd).await;
+    let service = GenreService::from(&state);
+    let result = service.delete(cmd).await;
     match result {
         Ok(_) => Ok(()),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR)

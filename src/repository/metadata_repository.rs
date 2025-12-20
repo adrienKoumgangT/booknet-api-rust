@@ -14,50 +14,31 @@ use crate::shared::logging::log::TimePrinter;
 impl Metadata {
     pub fn neo4j_create_query(&self) -> Query {
         match self {
-            Metadata::Source { name, website } => query(
-                "CREATE (s:Source {name:$k, website:$website})"
-            ).param("k", name.as_str()).param("website", website.as_str()),
-
-            Metadata::Language { code, name } => query(
-                "CREATE (l:Language {code:$k, name:$name})"
-            ).param("k", code.as_str()).param("name", name.as_str()),
-
             Metadata::Genre { name, description } => query(
                 "CREATE (g:Genre {name:$k, description:$description})"
             ).param("k", name.as_str()).param("description", description.as_str()),
+
+            _ => unreachable!(),
         }
     }
 
     pub fn neo4j_update_query_with_count(&self) -> Query {
         match self {
-            Metadata::Source { name, website } => query(
-                "MATCH (s:Source {name:$k})
-                 SET s.website = $website
-                 RETURN count(s) AS n"
-            ).param("k", name.as_str()).param("website", website.as_str()),
-
-            Metadata::Language { code, name } => query(
-                "MATCH (l:Language {code:$k})
-                 SET l.name = $name
-                 RETURN count(l) AS n"
-            ).param("k", code.as_str()).param("name", name.as_str()),
-
             Metadata::Genre { name, description } => query(
                 "MATCH (g:Genre {name:$k})
                  SET g.description = $description
                  RETURN count(g) AS n"
             ).param("k", name.as_str()).param("description", description.as_str()),
+
+            _ => unreachable!(),
         }
     }
 
     pub fn neo4j_delete_query(&self) -> Query {
         match self {
-            Metadata::Source { name, .. } => query("MATCH (s:Source {name:$id}) DETACH DELETE s")
-                .param("id", name.as_str()),
-            Metadata::Language { code, .. } => query("MATCH (l:Language {code:$id}) DETACH DELETE l")
-                .param("id", code.as_str()),
             Metadata::Genre { name, .. } => query("MATCH (g:Genre {name:$id}) DETACH DELETE g")
                 .param("id", name.as_str()),
+            _ => unreachable!(),
         }
     }
 }
@@ -66,19 +47,6 @@ impl Metadata {
 impl MetadataKey {
     pub fn neo4j_delete_query_with_count(&self) -> Query {
         match self {
-            MetadataKey::Source { name } => query(
-                "MATCH (s:Source {name:$k})
-                 WITH s, count(s) AS n
-                 DETACH DELETE s
-                 RETURN n"
-            ).param("k", name.as_str()),
-
-            MetadataKey::Language { code } => query(
-                "MATCH (l:Language {code:$k})
-                 WITH l, count(l) AS n
-                 DETACH DELETE l
-                 RETURN n"
-            ).param("k", code.as_str()),
 
             MetadataKey::Genre { name } => query(
                 "MATCH (g:Genre {name:$k})
@@ -86,6 +54,8 @@ impl MetadataKey {
                  DETACH DELETE g
                  RETURN n"
             ).param("k", name.as_str()),
+
+            _ => unreachable!(),
         }
     }
 }
@@ -188,6 +158,7 @@ impl MetadataRepositoryInterface for MetadataRepository {
             Metadata::Source { website, .. } => doc! { "$set": { "website": website } },
             Metadata::Language { name, .. } => doc! { "$set": { "name": name } },
             Metadata::Genre { description, .. } => doc! { "$set": { "description": description } },
+            Metadata::Publisher { website, .. } => doc! { "$set": { "website": website } },
         };
 
         if(!metadata.save_in_noe4j()) {

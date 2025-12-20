@@ -65,17 +65,41 @@ pub struct User {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReaderNode {
+    pub id: Option<String>,
     pub user_id: String,
-    pub username: String,
     pub name: String,
 }
 
+impl From<&User> for ReaderNode {
+    fn from(user: &User) -> Self {
+        Self::new(user.id.clone().unwrap().to_hex(), user.name.clone())
+    }
+}
+
 impl ReaderNode {
-    pub fn new(user: &User) -> Self {
+    pub fn new(user_id: String, name: String) -> Self {
         Self {
-            user_id: user.id.clone().unwrap().to_hex(),
-            username: user.username.clone(),
+            id: None,
+            user_id,
+            name
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserEmbed {
+    pub id: ObjectId,
+    pub name: String,
+    pub image: Option<String>,
+}
+
+impl From<&User> for UserEmbed {
+    fn from(user: &User) -> Self {
+        Self {
+            id: user.id.clone().unwrap(),
             name: user.name.clone(),
+            image: user.image.clone(),
         }
     }
 }

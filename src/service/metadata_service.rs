@@ -3,18 +3,26 @@ use async_trait::async_trait;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 
-use crate::command::genre_command::{
-    GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand
+use crate::command::{
+    genre_command::{
+        GenreCreateCommand, GenreDeleteCommand, GenreGetCommand, GenreListCommand, GenreUpdateCommand
+    },
+    language_command::{
+        LanguageCreateCommand, LanguageDeleteCommand, LanguageGetCommand, LanguageListCommand, LanguageUpdateCommand
+    },
+    publisher_command::{
+        PublisherCreateCommand, PublisherDeleteCommand, PublisherGetCommand, PublisherListCommand, PublisherUpdateCommand
+    },
+    source_command::{
+        SourceCreateCommand, SourceDeleteCommand, SourceGetCommand, SourceListCommand, SourceUpdateCommand
+    }
 };
-use crate::command::language_command::{
-    LanguageCreateCommand, LanguageDeleteCommand, LanguageGetCommand, LanguageListCommand, LanguageUpdateCommand
+use crate::dto::{
+    genre_dto::GenreResponse,
+    language_dto::LanguageResponse,
+    publisher_dto::PublisherResponse,
+    source_dto::SourceResponse
 };
-use crate::command::source_command::{
-    SourceCreateCommand, SourceDeleteCommand, SourceGetCommand, SourceListCommand, SourceUpdateCommand
-};
-use crate::dto::genre_dto::GenreResponse;
-use crate::dto::language_dto::LanguageResponse;
-use crate::dto::source_dto::SourceResponse;
 use crate::model::metadata_model::{Metadata, MetadataKey};
 use crate::repository::metadata_repository::{MetadataRepository, MetadataRepositoryInterface};
 use crate::shared::database::redis::{delete_key, get_key, set_key};
@@ -23,19 +31,6 @@ use crate::shared::state::AppState;
 
 #[async_trait]
 pub trait MetadataServiceInterface {
-    // Source
-    async fn get_source(&self, cmd: SourceGetCommand) -> Result<Option<SourceResponse>, Error>;
-    async fn create_source(&self, cmd: SourceCreateCommand) -> Result<SourceResponse, Error>;
-    async fn update_source(&self, cmd: SourceUpdateCommand) -> Result<Option<SourceResponse>, Error>;
-    async fn delete_source(&self, cmd: SourceDeleteCommand) -> Result<(), Error>;
-    async fn list_sources(&self, _: SourceListCommand) -> Result<Vec<SourceResponse>, Error>;
-
-    // Language
-    async fn get_language(&self, cmd: LanguageGetCommand) -> Result<Option<LanguageResponse>, Error>;
-    async fn create_language(&self, cmd: LanguageCreateCommand) -> Result<LanguageResponse, Error>;
-    async fn update_language(&self, cmd: LanguageUpdateCommand) -> Result<Option<LanguageResponse>, Error>;
-    async fn delete_language(&self, cmd: LanguageDeleteCommand) -> Result<(), Error>;
-    async fn list_languages(&self, _: LanguageListCommand) -> Result<Vec<LanguageResponse>, Error>;
 
     // Genre
     async fn get_genre(&self, cmd: GenreGetCommand) -> Result<Option<GenreResponse>, Error>;
@@ -43,6 +38,27 @@ pub trait MetadataServiceInterface {
     async fn update_genre(&self, cmd: GenreUpdateCommand) -> Result<Option<GenreResponse>, Error>;
     async fn delete_genre(&self, cmd: GenreDeleteCommand) -> Result<(), Error>;
     async fn list_genres(&self, _: GenreListCommand) -> Result<Vec<GenreResponse>, Error>;
+
+    // Language
+    async fn get_language(&self, cmd: LanguageGetCommand) -> Result<Option<LanguageResponse>, Error>;
+    async fn create_language(&self, cmd: LanguageCreateCommand) -> Result<LanguageResponse, Error>;
+    async fn update_language(&self, cmd: LanguageUpdateCommand) -> Result<Option<LanguageResponse>, Error>;
+    async fn delete_language(&self, cmd: LanguageDeleteCommand) -> Result<(), Error>;
+    async fn list_languages(&self, _: LanguageListCommand) -> Result<Vec<LanguageResponse>, Error>;
+    
+    // Publisher
+    async fn get_publisher(&self, cmd: PublisherGetCommand) -> Result<Option<PublisherResponse>, Error>;
+    async fn create_publisher(&self, cmd: PublisherCreateCommand) -> Result<PublisherResponse, Error>;
+    async fn update_publisher(&self, cmd: PublisherUpdateCommand) -> Result<Option<PublisherResponse>, Error>;
+    async fn delete_publisher(&self, cmd: PublisherDeleteCommand) -> Result<(), Error>;
+    async fn list_publishers(&self, _: PublisherListCommand) -> Result<Vec<PublisherResponse>, Error>;
+
+    // Source
+    async fn get_source(&self, cmd: SourceGetCommand) -> Result<Option<SourceResponse>, Error>;
+    async fn create_source(&self, cmd: SourceCreateCommand) -> Result<SourceResponse, Error>;
+    async fn update_source(&self, cmd: SourceUpdateCommand) -> Result<Option<SourceResponse>, Error>;
+    async fn delete_source(&self, cmd: SourceDeleteCommand) -> Result<(), Error>;
+    async fn list_sources(&self, _: SourceListCommand) -> Result<Vec<SourceResponse>, Error>;
 }
 
 
@@ -223,47 +239,52 @@ impl MetadataService {
 
 #[async_trait]
 impl MetadataServiceInterface for MetadataService {
-    // --- Source Implementation ---
+    
 
-    async fn get_source(&self, cmd: SourceGetCommand) -> Result<Option<SourceResponse>, Error> {
-        let metadata = self._get(MetadataKey::Source { name: cmd.id }).await;
+    
+
+    // --- Genre Implementation ---
+
+    async fn get_genre(&self, cmd: GenreGetCommand) -> Result<Option<GenreResponse>, Error> {
+        let metadata = self._get(MetadataKey::Genre { name: cmd.id }).await;
         match metadata {
-            Ok(Some(meta)) => Ok(Some(SourceResponse::from(meta))),
+            Ok(Some(meta)) => Ok(Some(GenreResponse::from(meta))),
             Ok(None) => Ok(None),
             Err(_) => Err(Error::msg("Error while getting metadata from database"))
         }
     }
 
-    async fn create_source(&self, cmd: SourceCreateCommand) -> Result<SourceResponse, Error> {
-        let meta = Metadata::new_source(cmd.name, cmd.website);
+    async fn create_genre(&self, cmd: GenreCreateCommand) -> Result<GenreResponse, Error> {
+        let meta = Metadata::new_genre(cmd.name, cmd.description);
         let metadata = self._create(meta).await;
         match metadata {
-            Ok(meta) => Ok(SourceResponse::from(meta)),
+            Ok(meta) => Ok(GenreResponse::from(meta)),
             Err(_) => Err(Error::msg("Error while creating metadata in database"))
         }
     }
 
-    async fn update_source(&self, cmd: SourceUpdateCommand) -> Result<Option<SourceResponse>, Error> {
-        let meta = Metadata::new_source(cmd.name, cmd.website);
+    async fn update_genre(&self, cmd: GenreUpdateCommand) -> Result<Option<GenreResponse>, Error> {
+        let meta = Metadata::new_genre(cmd.name, cmd.description);
         let metadata = self._update(meta).await;
         match metadata {
-            Ok(Some(meta)) => Ok(Some(SourceResponse::from(meta))),
+            Ok(Some(meta)) => Ok(Some(GenreResponse::from(meta))),
             Ok(None) => Ok(None),
             Err(_) => Err(Error::msg("Error while updating metadata in database"))
         }
     }
 
-    async fn delete_source(&self, cmd: SourceDeleteCommand) -> Result<(), Error> {
-        self._delete(MetadataKey::Source { name: cmd.id }).await
+    async fn delete_genre(&self, cmd: GenreDeleteCommand) -> Result<(), Error> {
+        self._delete(MetadataKey::Genre { name: cmd.id }).await
     }
 
-    async fn list_sources(&self, _: SourceListCommand) -> Result<Vec<SourceResponse>, Error> {
-        let sources = self._list("source").await;
-        match sources {
-            Ok(sources) => Ok(sources.into_iter().map(SourceResponse::from).collect()),
-            Err(_) => Err(Error::msg("Error while listing sources from database"))
+    async fn list_genres(&self, _: GenreListCommand) -> Result<Vec<GenreResponse>, Error> {
+        let genres = self._list("genre").await;
+        match genres {
+            Ok(genres) => Ok(genres.into_iter().map(GenreResponse::from).collect()),
+            Err(_) => Err(Error::msg("Error while listing genres from database"))
         }
     }
+
 
     // --- Language Implementation ---
 
@@ -306,46 +327,90 @@ impl MetadataServiceInterface for MetadataService {
             Err(_) => Err(Error::msg("Error while listing languages from database"))
         }
     }
-
-    // --- Genre Implementation ---
-
-    async fn get_genre(&self, cmd: GenreGetCommand) -> Result<Option<GenreResponse>, Error> {
-        let metadata = self._get(MetadataKey::Genre { name: cmd.id }).await;
+    
+    
+    // --- Publisher Implementation ---
+    
+    async fn get_publisher(&self, cmd: PublisherGetCommand) -> Result<Option<PublisherResponse>, Error> {
+        let metadata = self._get(MetadataKey::Publisher { name: cmd.id }).await;
         match metadata {
-            Ok(Some(meta)) => Ok(Some(GenreResponse::from(meta))),
+            Ok(Some(meta)) => Ok(Some(PublisherResponse::from(meta))),
             Ok(None) => Ok(None),
             Err(_) => Err(Error::msg("Error while getting metadata from database"))
         }
     }
 
-    async fn create_genre(&self, cmd: GenreCreateCommand) -> Result<GenreResponse, Error> {
-        let meta = Metadata::new_genre(cmd.name, cmd.description);
+    async fn create_publisher(&self, cmd: PublisherCreateCommand) -> Result<PublisherResponse, Error> {
+        let meta = Metadata::new_publisher(cmd.name, cmd.website);
         let metadata = self._create(meta).await;
         match metadata {
-            Ok(meta) => Ok(GenreResponse::from(meta)),
+            Ok(meta) => Ok(PublisherResponse::from(meta)),
             Err(_) => Err(Error::msg("Error while creating metadata in database"))
         }
     }
 
-    async fn update_genre(&self, cmd: GenreUpdateCommand) -> Result<Option<GenreResponse>, Error> {
-        let meta = Metadata::new_genre(cmd.name, cmd.description);
+    async fn update_publisher(&self, cmd: PublisherUpdateCommand) -> Result<Option<PublisherResponse>, Error> {
+        let meta = Metadata::new_publisher(cmd.name, cmd.website);
         let metadata = self._update(meta).await;
         match metadata {
-            Ok(Some(meta)) => Ok(Some(GenreResponse::from(meta))),
+            Ok(Some(meta)) => Ok(Some(PublisherResponse::from(meta))),
+            Ok(None) => Ok(None),
+            Err(_) => Err(Error::msg("Error while updating metadata in database"))
+        }
+    }
+    
+    async fn delete_publisher(&self, cmd: PublisherDeleteCommand) -> Result<(), Error> {
+        self._delete(MetadataKey::Publisher { name: cmd.id }).await
+    }
+    
+    async fn list_publishers(&self, _: PublisherListCommand) -> Result<Vec<PublisherResponse>, Error> {
+        let publishers = self._list("publisher").await;
+        match publishers {
+            Ok(publishers) => Ok(publishers.into_iter().map(PublisherResponse::from).collect()),
+            Err(_) => Err(Error::msg("Error while listing publishers from database"))
+        }
+    }
+
+
+    // --- Source Implementation ---
+
+    async fn get_source(&self, cmd: SourceGetCommand) -> Result<Option<SourceResponse>, Error> {
+        let metadata = self._get(MetadataKey::Source { name: cmd.id }).await;
+        match metadata {
+            Ok(Some(meta)) => Ok(Some(SourceResponse::from(meta))),
+            Ok(None) => Ok(None),
+            Err(_) => Err(Error::msg("Error while getting metadata from database"))
+        }
+    }
+
+    async fn create_source(&self, cmd: SourceCreateCommand) -> Result<SourceResponse, Error> {
+        let meta = Metadata::new_source(cmd.name, cmd.website);
+        let metadata = self._create(meta).await;
+        match metadata {
+            Ok(meta) => Ok(SourceResponse::from(meta)),
+            Err(_) => Err(Error::msg("Error while creating metadata in database"))
+        }
+    }
+
+    async fn update_source(&self, cmd: SourceUpdateCommand) -> Result<Option<SourceResponse>, Error> {
+        let meta = Metadata::new_source(cmd.name, cmd.website);
+        let metadata = self._update(meta).await;
+        match metadata {
+            Ok(Some(meta)) => Ok(Some(SourceResponse::from(meta))),
             Ok(None) => Ok(None),
             Err(_) => Err(Error::msg("Error while updating metadata in database"))
         }
     }
 
-    async fn delete_genre(&self, cmd: GenreDeleteCommand) -> Result<(), Error> {
-        self._delete(MetadataKey::Genre { name: cmd.id }).await
+    async fn delete_source(&self, cmd: SourceDeleteCommand) -> Result<(), Error> {
+        self._delete(MetadataKey::Source { name: cmd.id }).await
     }
 
-    async fn list_genres(&self, _: GenreListCommand) -> Result<Vec<GenreResponse>, Error> {
-        let genres = self._list("genre").await;
-        match genres {
-            Ok(genres) => Ok(genres.into_iter().map(GenreResponse::from).collect()),
-            Err(_) => Err(Error::msg("Error while listing genres from database"))
+    async fn list_sources(&self, _: SourceListCommand) -> Result<Vec<SourceResponse>, Error> {
+        let sources = self._list("source").await;
+        match sources {
+            Ok(sources) => Ok(sources.into_iter().map(SourceResponse::from).collect()),
+            Err(_) => Err(Error::msg("Error while listing sources from database"))
         }
     }
 }

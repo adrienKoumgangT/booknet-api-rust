@@ -16,6 +16,10 @@ pub enum Metadata {
         name: String,
         description: String,
     },
+    Publisher {
+        name: String,
+        website: String,
+    }
 }
 
 
@@ -43,12 +47,15 @@ impl Metadata {
     pub fn new_genre(name: String, description: String) -> Self {
         Self::Genre { name, description }
     }
+    
+    pub fn new_publisher(name: String, website: String) -> Self {
+        Self::Publisher { name, website }
+    }
 
     pub fn save_in_noe4j(&self) -> bool {
         match self {
-            Metadata::Source { .. } => false,
-            Metadata::Language { .. } => false,
             Metadata::Genre { .. } => true,
+            _ => false,
         }
     }
 
@@ -57,6 +64,7 @@ impl Metadata {
             Metadata::Source { name, .. } => name,
             Metadata::Genre { name, .. } => name,
             Metadata::Language { code, .. } => code,
+            Metadata::Publisher { name, .. } => name,
         }
     }
 
@@ -65,6 +73,7 @@ impl Metadata {
             Metadata::Source { .. } => "source",
             Metadata::Language { .. } => "language",
             Metadata::Genre { .. } => "genre",
+            Metadata::Publisher { .. } => "publisher",
         }
     }
 
@@ -93,14 +102,14 @@ pub enum MetadataKey {
     Source { name: String },
     Language { code: String },
     Genre { name: String },
+    Publisher { name: String },
 }
 
 impl MetadataKey {
     pub fn save_in_noe4j(&self) -> bool {
         match self {
-            MetadataKey::Source { .. } => false,
-            MetadataKey::Language { .. } => false,
             MetadataKey::Genre { .. } => true,
+            _ => false,
         }
     }
 
@@ -109,6 +118,7 @@ impl MetadataKey {
             MetadataKey::Source { .. } => "source",
             MetadataKey::Language { .. } => "language",
             MetadataKey::Genre { .. } => "genre",
+            MetadataKey::Publisher { .. } => "publisher",
         }
     }
     pub fn key(&self) -> &str {
@@ -116,14 +126,10 @@ impl MetadataKey {
             MetadataKey::Source { name } => name,
             MetadataKey::Genre { name } => name,
             MetadataKey::Language { code } => code,
+            MetadataKey::Publisher { name } => name,
         }
     }
     pub fn mongo_id(&self) -> String {
         format!("{}:{}", self.kind(), self.key())
     }
 }
-
-
-
-
-
