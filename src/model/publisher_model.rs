@@ -9,14 +9,12 @@ pub struct Publisher {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublisherEmbed {
-    pub id: String,
     pub name: String,
 }
 
 impl From<&Publisher> for PublisherEmbed {
     fn from(publisher: &Publisher) -> Self {
         Self {
-            id: publisher.name.clone(),
             name: publisher.name.clone(),
         }
     }
@@ -25,7 +23,7 @@ impl From<&Publisher> for PublisherEmbed {
 impl From<&MetadataDoc> for PublisherEmbed {
     fn from(doc: &MetadataDoc) -> Self {
         match &doc.meta {
-            Metadata::Publisher { name, website } => Self { id: doc.id.clone(), name: name.clone() },
+            Metadata::Publisher { name, website } => Self { name: name.clone() },
             _ => unreachable!(),
         }
     }

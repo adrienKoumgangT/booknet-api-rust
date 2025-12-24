@@ -6,3 +6,8 @@ pub struct Source {
     pub website: String,
 }
 
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SourceEmbed {
+    pub name: String,
+}

@@ -2,17 +2,23 @@ use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use crate::model::{
+    author_model::AuthorEmbed,
+    genre_model::GenreEmbed,
+    publisher_model::PublisherEmbed,
+    source_model::SourceEmbed
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BookImageSource {
     pub url: String,
-    pub source: String,
+    pub source: SourceEmbed,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BookPreviewSource {
     pub url: String,
-    pub source: String,
+    pub source: SourceEmbed,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -23,23 +29,6 @@ pub enum BookFormat {
     Audiobook,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BookAuthor {
-    pub id: ObjectId,
-    pub name: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BookGenre {
-    pub id: ObjectId,
-    pub name: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BookPublisher {
-    pub id: ObjectId,
-    pub name: String,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Book {
@@ -58,10 +47,12 @@ pub struct Book {
 
     pub images: Vec<BookImageSource>,
     pub preview: Vec<BookPreviewSource>,
-    pub genres: Vec<BookGenre>,
-    pub authors: Vec<BookAuthor>,
-    pub publishers: Vec<BookPublisher>,
+    pub genres: Vec<GenreEmbed>,
+    pub authors: Vec<AuthorEmbed>,
+    pub publishers: Vec<PublisherEmbed>,
     pub languages: Vec<String>,
+    
+    pub reviews: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

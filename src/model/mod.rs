@@ -6,3 +6,4 @@ pub mod metadata_model;
 pub mod source_model;
 pub mod language_model;
 pub mod genre_model;
+pub mod author_model;

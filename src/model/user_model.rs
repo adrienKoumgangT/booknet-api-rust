@@ -23,6 +23,10 @@ impl UserRole {
     pub fn is_admin(&self) -> bool {
         matches!(self, Self::Admin)
     }
+    
+    pub fn save_in_noe4j(&self) -> bool {
+        matches!(self, Self::Reader)
+    }
 }
 
 impl Default for UserRole {
@@ -42,10 +46,10 @@ pub struct User {
     pub id: Option<ObjectId>,
 
     pub username: String,
-    pub password_hash: String,
+    pub password: String,
 
     pub name: String,
-    pub image: Option<String>,
+    pub image_url: Option<String>,
 
     pub role: UserRole,
 
@@ -56,7 +60,7 @@ pub struct User {
     pub shelf: Option<Vec<BookEmbed>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_reviews: Option<Vec<String>>,
+    pub reviews: Option<Vec<ObjectId>>,
 
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -91,7 +95,7 @@ impl ReaderNode {
 pub struct UserEmbed {
     pub id: ObjectId,
     pub name: String,
-    pub image: Option<String>,
+    pub image_url: Option<String>,
 }
 
 impl From<&User> for UserEmbed {
@@ -99,7 +103,7 @@ impl From<&User> for UserEmbed {
         Self {
             id: user.id.clone().unwrap(),
             name: user.name.clone(),
-            image: user.image.clone(),
+            image_url: user.image_url.clone(),
         }
     }
 }

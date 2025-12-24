@@ -10,6 +10,7 @@ use neo4rs::{query, Graph, Query, Txn};
 
 use crate::model::metadata_model::{Metadata, MetadataDoc, MetadataKey};
 use crate::shared::logging::log::TimePrinter;
+use crate::shared::repository::repository_utils::neo4j_count;
 
 impl Metadata {
     pub fn neo4j_create_query(&self) -> Query {
@@ -91,16 +92,6 @@ impl MetadataRepository {
     }
 }
 
-
-async fn neo4j_count(tx: &mut Txn, q: Query) -> Result<i64> {
-    let mut stream = tx.execute(q).await?;
-    if let Some(row) = stream.next(tx).await? {
-        let n: i64 = row.get("n")?;
-        Ok(n)
-    } else {
-        Ok(0)
-    }
-}
 
 #[async_trait]
 impl MetadataRepositoryInterface for MetadataRepository {

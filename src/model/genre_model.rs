@@ -9,14 +9,12 @@ pub struct Genre {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GenreEmbed {
-    pub id: String,
     pub name: String,
 }
 
 impl From<&Genre> for GenreEmbed {
     fn from(genre: &Genre) -> Self {
         Self {
-            id: genre.name.clone(),
             name: genre.name.clone(),
         }
     }
@@ -25,7 +23,7 @@ impl From<&Genre> for GenreEmbed {
 impl From<&MetadataDoc> for GenreEmbed {
     fn from(doc: &MetadataDoc) -> Self {
         match &doc.meta {
-            Metadata::Genre { name, .. } => Self { id: doc.id.clone(), name: name.clone()},
+            Metadata::Genre { name, .. } => Self { name: name.clone()},
             _ => unreachable!(),
         }
     }
