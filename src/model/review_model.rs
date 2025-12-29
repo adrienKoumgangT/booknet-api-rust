@@ -1,7 +1,7 @@
 use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-
+use crate::model::user_model::UserEmbed;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Review {
@@ -9,18 +9,16 @@ pub struct Review {
     pub id: Option<ObjectId>,
 
     pub book_id: ObjectId,
-    pub user_id: ObjectId,
+    pub user: UserEmbed,
 
-    pub summary: Option<String>,
     pub content: String,
     pub score: f32,
     pub date_added: Option<DateTime<Utc>>,
-    pub helpfulness: Option<i32>,
 }
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RaterRelationShip {
     pub rating: f32,
-    pub ts: DateTime<Utc>,
+    pub ts: i64,
 }

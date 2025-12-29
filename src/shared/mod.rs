@@ -6,3 +6,4 @@ pub mod database;
 pub mod openapi;
 pub mod logging;
 pub mod repository;
+pub mod constant;

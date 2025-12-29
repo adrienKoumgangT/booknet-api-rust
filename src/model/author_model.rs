@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::model::book_model::BookEmbed;
-
+use crate::model::external_id_model::ExternalId;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Author {
@@ -15,6 +15,8 @@ pub struct Author {
     pub description: String,
     
     pub books: Vec<BookEmbed>,
+    
+    pub external_id: Option<ExternalId>,
 
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
